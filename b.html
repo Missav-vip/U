@@ -1,84 +1,132 @@
+from flask import Flask, jsonify, render_template_string
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+import os
+import time
+import threading
+
+app = Flask(__name__)
+
+# Function to create a browser session with a unique profile
+def create_browser_session(profile_number, download_path):
+    chrome_options = Options()
+    user_agent = f"Mozilla/5.0 (Linux; Android 10; Mobile; rv:91.0) Gecko/91.0 Firefox/91.0 Profile-{profile_number}"
+    chrome_options.add_argument(f"user-agent={user_agent}")
+    prefs = {
+        "download.default_directory": download_path,
+        "download.prompt_for_download": False,
+        "download.directory_upgrade": True
+    }
+    chrome_options.add_experimental_option("prefs", prefs)
+    
+    profile_dir = os.path.join(os.getcwd(), f"profile_{profile_number}")
+    if not os.path.exists(profile_dir):
+        os.makedirs(profile_dir)
+    chrome_options.add_argument(f"--user-data-dir={profile_dir}")
+    driver = webdriver.Chrome(options=chrome_options)
+    return driver
+
+# Main directory to store download data
+base_download_folder = os.path.expanduser("~/vpn_downloads")
+if not os.path.exists(base_download_folder):
+    os.makedirs(base_download_folder)
+
+# URLs to visit
+crypto_tab_url = "https://cryptotab.net/"
+vpn_url = "https://openvpn.net/client-connect-vpn-for-windows/"
+
+# Creating browser sessions
+browsers = []
+for i in range(10):  # 10 profiles for example
+    download_path = os.path.join(base_download_folder, f"profile_{i}")
+    if not os.path.exists(download_path):
+        os.makedirs(download_path)
+    browser = create_browser_session(i, download_path)
+    browsers.append(browser)
+
+# Automating each browser session to visit the links
+def start_automation():
+    for browser in browsers:
+        try:
+            browser.get(crypto_tab_url)
+            time.sleep(5)  # Wait for page to load
+            browser.get(vpn_url)
+            time.sleep(5)  # Wait for page to load
+            download_button = browser.find_element("xpath", "//a[contains(@href, 'download')]")
+            download_button.click()
+        except Exception as e:
+            print(f"Error in browser {browser}: {e}")
+
+    # Wait for downloads to complete
+    time.sleep(60)
+
+    # Close all browser sessions
+    for browser in browsers:
+        browser.quit()
+
+# HTML Template for Frontend
+html_content = '''
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-Profile Miner</title>
+    <title>Crypto Tab and VPN Automation</title>
     <style>
         body {
+            background-color: #f0f0f0;
             font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
         }
-        .profile {
-            border: 1px solid #ccc;
-            margin: 10px;
-            padding: 10px;
-            border-radius: 5px;
-            background: #fff;
+        .container {
+            text-align: center;
         }
-        .profile h3 {
-            margin: 0;
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 20px;
             font-size: 18px;
-        }
-        .status {
-            margin-top: 5px;
-            color: green;
-        }
-        .controls {
-            margin-top: 10px;
-        }
-        button {
-            padding: 5px 10px;
-            margin-right: 5px;
             cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+        .button:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
 <body>
-    <h1>Multi-Profile Crypto Miner</h1>
-    <div id="profiles-container"></div>
+    <div class="container">
+        <h1>CryptoTab and VPN Automation</h1>
+        <p>Click the button below to automate the CryptoTab installation and VPN download.</p>
+        <button class="button" id="startAutomation">Start Automation</button>
+    </div>
 
     <script>
-        const profiles = [
-            { id: 1, name: "Profile 1", status: "Stopped" },
-            { id: 2, name: "Profile 2", status: "Stopped" },
-            { id: 3, name: "Profile 3", status: "Stopped" },
-        ];
-
-        const container = document.getElementById("profiles-container");
-
-        profiles.forEach(profile => {
-            const profileDiv = document.createElement("div");
-            profileDiv.className = "profile";
-            profileDiv.innerHTML = `
-                <h3>${profile.name}</h3>
-                <div class="status">Status: <span>${profile.status}</span></div>
-                <div class="controls">
-                    <button onclick="startMining(${profile.id})">Start</button>
-                    <button onclick="stopMining(${profile.id})">Stop</button>
-                </div>
-            `;
-            container.appendChild(profileDiv);
+        document.getElementById('startAutomation').addEventListener('click', function() {
+            alert("Starting the automation process...");
+            fetch("/start-automation")
+            .then(response => response.json())
+            .then(data => console.log("Automation started"));
         });
-
-        function startMining(profileId) {
-            const profile = profiles.find(p => p.id === profileId);
-            profile.status = "Mining...";
-            updateStatus(profileId, "Mining...");
-        }
-
-        function stopMining(profileId) {
-            const profile = profiles.find(p => p.id === profileId);
-            profile.status = "Stopped";
-            updateStatus(profileId, "Stopped");
-        }
-
-        function updateStatus(profileId, status) {
-            const profileDiv = document.querySelector(`.profile:nth-child(${profileId})`);
-            profileDiv.querySelector(".status span").textContent = status;
-        }
     </script>
 </body>
 </html>
+'''
+
+@app.route('/')
+def index():
+    return render_template_string(html_content)
+
+@app.route('/start-automation', methods=['GET'])
+def start_automation_route():
+    # Start the automation in a separate thread
+    threading.Thread(target=start_automation).start()
+    return jsonify({"status": "Automation started"})
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)
