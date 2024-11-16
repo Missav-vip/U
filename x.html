@@ -14,6 +14,8 @@
             gap: 5px; /* Spasi antar video */
             justify-content: center; /* Menyusun video di tengah */
             align-items: center;
+            height: 100vh;
+            overflow: hidden; /* Menyembunyikan scroll */
         }
 
         .video-container {
@@ -23,6 +25,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            pointer-events: none; /* Mencegah klik pada video */
         }
 
         iframe {
@@ -44,6 +47,11 @@
                 width: 60px;
                 height: 60px;
             }
+        }
+
+        /* Memastikan tidak ada scroll */
+        html, body {
+            overflow: hidden;
         }
     </style>
 </head>
@@ -72,14 +80,23 @@
         // Menambahkan video ke dalam container
         for (let i = 0; i < 80; i++) {
             const iframe = document.createElement('iframe');
-            iframe.src = `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=1&loop=1&mute=1&vq=small`;  // Memaksa kualitas 240p
+            iframe.src = `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=1&loop=1&mute=1&vq=tiny`;  // Memaksa kualitas 144p
             iframe.setAttribute("allow", "autoplay; encrypted-media");
+            iframe.setAttribute("loading", "lazy");  // Lazy loading untuk mempercepat pemuatan
 
             const videoContainer = document.createElement('div');
             videoContainer.classList.add('video-container');
             videoContainer.appendChild(iframe);
             container.appendChild(videoContainer);
         }
+
+        // Menambahkan event listener untuk menangani klik di luar video
+        document.body.addEventListener('click', (e) => {
+            if (!e.target.closest('.video-container')) {
+                // Jika klik di luar video, bisa menambah logika atau interaksi lain
+                console.log('Klik di luar video');
+            }
+        });
     </script>
 </body>
 </html>
