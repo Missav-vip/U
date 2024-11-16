@@ -20,10 +20,28 @@ async function getProxy() {
     }
 }
 
+// Fungsi untuk mendapatkan URL video acak dari playlist
+async function getRandomVideoUrl(playlistId) {
+    const url = `https://www.youtube.com/playlist?list=${playlistId}`;
+    const response = await axios.get(url);
+    const videoUrls = response.data.match(/"videoId":"(.*?)"/g);
+    const randomIndex = Math.floor(Math.random() * videoUrls.length);
+    const videoId = videoUrls[randomIndex].replace(/"videoId":"(.*?)"/, '$1');
+    return `https://www.youtube.com/watch?v=${videoId}`;
+}
+
+// Fungsi untuk memulai ulang dengan proxy baru jika dibutuhkan
+async function restartWithNewProxy(browser) {
+    console.log("Mengganti proxy...");
+    await browser.close();
+    const newProxy = await getProxy();
+    if (newProxy) {
+        await runYouTubePlaylist(newProxy);
+    }
+}
+
 // Fungsi utama untuk memutar playlist secara otomatis dengan Puppeteer
-async function runYouTubePlaylist() {
-    const proxy = await getProxy();
-    
+async function runYouTubePlaylist(proxy) {
     const browser = await puppeteer.launch({
         headless: true, // Tidak menampilkan GUI browser
         args: [
@@ -36,17 +54,63 @@ async function runYouTubePlaylist() {
     const page = await browser.newPage();
 
     // Set up browser untuk tidak terdeteksi
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+    const userAgentList = [
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:38.0) Gecko/20100101 Firefox/38.0',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36',
+        'Mozilla/5.0 (Windows NT 6.1; rv:56.0) Gecko/20100101 Firefox/56.0'
+    ];
+
+    const randomUserAgent = userAgentList[Math.floor(Math.random() * userAgentList.length)];
+
+    await page.setUserAgent(randomUserAgent);
     await page.setViewport({ width: 1280, height: 720 }); // Ukuran layar standar
+
+    // Tambahkan headers untuk menutupi deteksi lebih lanjut
+    await page.setExtraHTTPHeaders({
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Connection': 'keep-alive',
+        'Referer': 'https://youtube.com',
+        'Upgrade-Insecure-Requests': '1',
+        'Cache-Control': 'max-age=0',
+    });
 
     // Buka halaman YouTube playlist
     await page.goto('https://youtube.com/playlist?list=PLmeMnjLK2plF0KqeYKG7OjsA5FEGODMh0', {
         waitUntil: 'domcontentloaded',
     });
 
-    // Mulai video secara otomatis dan acak playlist
-    await page.click('button[aria-label="Play"]'); // Menekan tombol play jika tersedia
-    console.log('Video dimulai secara otomatis.');
+    // Fungsi untuk memutar video acak dari playlist
+    const playRandomVideo = async () => {
+        const videoUrl = await getRandomVideoUrl('PLmeMnjLK2plF0KqeYKG7OjsA5FEGODMh0');
+        console.log('Memutar video acak:', videoUrl);
+
+        await page.goto(videoUrl, { waitUntil: 'domcontentloaded' });
+
+        const playButton = await page.$('button[aria-label="Play"]');
+        if (playButton) {
+            await playButton.click();
+            console.log('Video diputar secara otomatis');
+        }
+
+        // Menambahkan jeda sebelum memutar video berikutnya
+        const delay = Math.random() * 5000 + 5000; // Jeda acak antara 5-10 detik
+        console.log(`Menunggu ${delay / 1000} detik sebelum melanjutkan ke video berikutnya`);
+        await page.waitForTimeout(delay);
+    };
+
+    // Fungsi untuk menjaga video tetap berjalan tanpa henti
+    const keepVideoPlaying = async () => {
+        setInterval(async () => {
+            console.log('Memastikan video tetap berjalan...');
+            const videoUrl = await getRandomVideoUrl('PLmeMnjLK2plF0KqeYKG7OjsA5FEGODMh0');
+            await page.goto(videoUrl, { waitUntil: 'domcontentloaded' });
+        }, 5000); // Cek setiap 5 detik
+    };
+
+    // Memutar video acak dari playlist
+    await playRandomVideo();
+    keepVideoPlaying();
 
     // Fungsi untuk mengulang playlist setelah selesai
     page.on('framenavigated', async () => {
@@ -57,11 +121,35 @@ async function runYouTubePlaylist() {
     // Menunggu hingga video selesai diputar dan terus ulang
     setInterval(async () => {
         // Cek jika video selesai dan refresh halaman
-        await page.reload({ waitUntil: 'domcontentloaded' });
-    }, 3600000); // Setiap 1 jam, untuk memastikan video berulang tanpa henti
+        const videoTime = await page.evaluate(() => {
+            const video = document.querySelector('video');
+            return video ? video.currentTime : 0;
+        });
 
-    // Tetap menjalankan Puppeteer tanpa hentikan
+        // Jika video hampir selesai, refresh
+        if (videoTime > 300) {  // Jika video lebih dari 5 menit
+            await page.reload({ waitUntil: 'domcontentloaded' });
+        }
+    }, 60000); // Memeriksa setiap menit
+
+    // Rotasi Proxy setiap 5 menit
+    setInterval(async () => {
+        console.log('Rotasi Proxy...');
+        const newProxy = await getProxy();
+        if (newProxy) {
+            await restartWithNewProxy(browser); // Restart browser dengan proxy baru
+        }
+    }, 300000); // 5 menit sekali rotasi proxy
+
     console.log('Puppeteer berjalan tanpa henti');
 }
 
-runYouTubePlaylist();
+// Ambil proxy pertama kali dan jalankan
+(async () => {
+    const proxy = await getProxy();
+    if (proxy) {
+        await runYouTubePlaylist(proxy);
+    } else {
+        console.error('Tidak ada proxy yang tersedia!');
+    }
+})();
