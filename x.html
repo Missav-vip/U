@@ -10,11 +10,12 @@
             margin: 0;
             padding: 0;
             display: flex;
-            flex-wrap: wrap;  /* Membuat video memanjang ke samping */
-            justify-content: flex-start; /* Memastikan video dimulai dari kiri */
+            flex-wrap: wrap;  /* Video akan disusun dalam barisan horizontal */
+            justify-content: flex-start; /* Mulai dari kiri */
             align-items: center;
             height: 100vh;
             overflow-x: scroll; /* Hanya scroll horizontal */
+            overflow-y: hidden; /* Tidak ada scroll vertikal */
         }
 
         .video-container {
@@ -33,11 +34,10 @@
             border: none;
         }
 
-        /* Memastikan tidak ada scroll vertikal */
+        /* Pastikan body dan html tidak ada scroll vertikal */
         html, body {
             overflow-y: hidden;
         }
-
     </style>
 </head>
 <body>
@@ -46,17 +46,14 @@
     <script>
         const playlistId = 'PLmeMnjLK2plF0KqeYKG7OjsA5FEGODMh0'; // ID Playlist Anda
         const container = document.getElementById('videos-container');
-        const videosPerRow = 10;  // Menentukan berapa banyak video dalam satu baris
-        let videoIndexStart = 0;
-        const videosPerLoad = 30; // Menambahkan 30 video per load
+        const videosPerLoad = 80; // Jumlah video yang akan dimuat sekaligus
 
         // Fungsi untuk menambahkan video
-        function loadVideos(startIndex, count) {
-            for (let i = startIndex; i < startIndex + count; i++) {
+        function loadVideos() {
+            for (let i = 0; i < videosPerLoad; i++) {
                 const iframe = document.createElement('iframe');
                 iframe.src = `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=1&loop=1&mute=1&vq=tiny`;  // Memaksa kualitas 144p
                 iframe.setAttribute("allow", "autoplay; encrypted-media");
-                iframe.setAttribute("loading", "lazy");  // Lazy loading untuk mempercepat pemuatan
 
                 const videoContainer = document.createElement('div');
                 videoContainer.classList.add('video-container');
@@ -65,14 +62,8 @@
             }
         }
 
-        // Fungsi untuk memuat lebih banyak video
-        function loadMoreVideos() {
-            loadVideos(videoIndexStart, videosPerLoad);  // Muat video dari index yang diberikan
-            videoIndexStart += videosPerLoad;  // Update index video yang akan ditampilkan selanjutnya
-        }
-
         // Muat video pertama kali
-        loadMoreVideos(); // Memuat video pertama ketika halaman dibuka
+        loadVideos(); // Memuat semua video sekaligus ketika halaman dimuat
     </script>
 </body>
 </html>
