@@ -76,17 +76,6 @@
             videoContainer.appendChild(iframe);
             container.appendChild(videoContainer);
         }
-
-        // Fungsi untuk memastikan video tetap diputar jika tab masih aktif
-        function keepVideoPlaying() {
-            const iframes = document.querySelectorAll('iframe');
-            iframes.forEach((iframe) => {
-                iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-            });
-        }
-
-        // Menjalankan keepVideoPlaying setiap 1 detik jika tab aktif
-        setInterval(keepVideoPlaying, 1000);
     </script>
 </body>
 </html>
