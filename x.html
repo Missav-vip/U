@@ -7,85 +7,48 @@
     <style>
         body {
             background-color: black;
-            margin: 0;
-            padding: 0;
             display: flex;
             flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            height: 100vh;
+            justify-content: space-evenly;
+            margin: 0;
+            padding: 0;
         }
-
         .video-container {
-            width: 60px;
-            height: 60px;
-            margin: 1px;
-            display: inline-block;
-            position: relative;
+            margin: 5px;
+            width: 50px;
+            height: 50px;
         }
-
         iframe {
             width: 100%;
             height: 100%;
             border: none;
-            border-radius: 4px;
-        }
-
-        @media (max-width: 768px) {
-            .video-container { width: 50px; height: 50px; }
-        }
-
-        @media (max-width: 400px) {
-            .video-container { width: 40px; height: 40px; }
         }
     </style>
 </head>
 <body>
+    <div id="videos-container"></div>
+    
+    <script>
+        const playlistId = 'PLmeMnjLK2plF0KqeYKG7OjsA5FEGODMh0'; // Ganti dengan ID playlist Anda
+        const container = document.getElementById('videos-container');
+        const totalVideos = 200;
 
-<div id="videos-container"></div>
+        // Fungsi untuk mendapatkan video secara acak
+        function getRandomVideo() {
+            const randomIndex = Math.floor(Math.random() * totalVideos);
+            return playlistId.split(',')[randomIndex] || 'defaultVideoId';
+        }
 
-<script>
-// Playlist ID YouTube
-const playlistId = 'PLmeMnjLK2plF0KqeYKG7OjsA5FEGODMh0';  // Ganti dengan ID Playlist Anda
-
-// Fungsi untuk menambahkan video secara otomatis
-function addVideo(playlistId) {
-    const container = document.getElementById('videos-container');
-
-    // URL untuk video playlist
-    const videoUrl = `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=1&loop=1&mute=1`;
-
-    // Membuat iframe untuk video
-    const iframe = document.createElement('iframe');
-    iframe.src = videoUrl;
-    iframe.setAttribute("allow", "autoplay; encrypted-media");
-
-    // Membuat kotak video
-    const videoContainer = document.createElement('div');
-    videoContainer.classList.add('video-container');
-    videoContainer.appendChild(iframe);
-
-    // Menambahkan video ke dalam kontainer
-    container.appendChild(videoContainer);
-}
-
-// Menambahkan 100 video secara otomatis
-for (let i = 0; i < 50; i++) {
-    addVideo(playlistId);
-}
-
-// Fungsi untuk memastikan video terus diputar
-function autoPlayVideos() {
-    const iframeElements = document.querySelectorAll('iframe');
-    iframeElements.forEach(iframe => {
-        iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-    });
-}
-
-// Memutar video secara otomatis setiap 60 detik untuk memastikan berputar
-setInterval(autoPlayVideos, 60000);
-
-</script>
-
+        // Menampilkan 200 kotak video secara acak
+        for (let i = 0; i < totalVideos; i++) {
+            const iframe = document.createElement('iframe');
+            iframe.src = `https://www.youtube.com/embed/${getRandomVideo()}?autoplay=1&loop=1&playlist=${playlistId}&mute=1&quality=small&controls=0&disablekb=1&rel=0`;
+            iframe.setAttribute("allow", "autoplay; encrypted-media");
+            const videoContainer = document.createElement('div');
+            videoContainer.classList.add('video-container');
+            videoContainer.appendChild(iframe);
+            container.appendChild(videoContainer);
+        }
+    </script>
 </body>
 </html>
