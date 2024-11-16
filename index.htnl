@@ -11,22 +11,30 @@
             padding: 0;
             display: flex;
             flex-wrap: wrap;
-            justify-content: space-between;
+            justify-content: space-evenly;
+            align-items: center;
         }
         .video-container {
-            width: 20%;
-            padding: 5px;
-        }
-        iframe {
             width: 60px;
             height: 60px;
+            margin: 5px;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
             border: none;
         }
-        @media (max-width: 768px) {
-            .video-container { width: 25%; }
+        @media screen and (max-width: 768px) {
+            .video-container {
+                width: 60px;
+                height: 60px;
+            }
         }
-        @media (max-width: 400px) {
-            .video-container { width: 50%; }
+        @media screen and (max-width: 400px) {
+            .video-container {
+                width: 60px;
+                height: 60px;
+            }
         }
     </style>
 </head>
@@ -34,40 +42,29 @@
     <div id="videos-container"></div>
 
     <script>
-        // Playlist YouTube ID
-        const playlistId = 'PLmeMnjLK2plF0KqeYKG7OjsA5FEGODMh0';
+        const playlistId = 'PLmeMnjLK2plF0KqeYKG7OjsA5FEGODMh0'; // Ganti dengan ID Playlist Anda
         const container = document.getElementById('videos-container');
 
-        // Fungsi untuk mendapatkan proxy
-        async function fetchProxy() {
-            const response = await fetch('/get-proxy');
-            const data = await response.json();
-            return data;
+        // Menampilkan 200 video acak dari playlist
+        let videoIndexes = [];
+        for (let i = 0; i < 200; i++) {
+            videoIndexes.push(i);  // Menambahkan indeks video dalam playlist
         }
 
-        // Memuat video dengan proxy dinamis
-        async function loadVideos() {
-            const proxy = await fetchProxy();
+        // Acak urutan video
+        videoIndexes = videoIndexes.sort(() => Math.random() - 0.5);
 
-            // Menampilkan 20 video acak dari playlist
-            for (let i = 0; i < 20; i++) {
-                const iframe = document.createElement('iframe');
-                iframe.src = `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=1&loop=1&mute=1`;
-                iframe.setAttribute("allow", "autoplay; encrypted-media");
+        // Loop untuk menambahkan video ke halaman
+        videoIndexes.forEach((index) => {
+            const iframe = document.createElement('iframe');
+            iframe.src = `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=1&loop=1&mute=1&controls=0`; // Memutar playlist, tanpa kontrol
+            iframe.setAttribute("allow", "autoplay; encrypted-media");
 
-                // Set proxy untuk setiap iframe jika diperlukan
-                if (proxy) {
-                    iframe.setAttribute("src", `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=1&loop=1&mute=1&proxy=${proxy.host}:${proxy.port}`);
-                }
-
-                const videoContainer = document.createElement('div');
-                videoContainer.classList.add('video-container');
-                videoContainer.appendChild(iframe);
-                container.appendChild(videoContainer);
-            }
-        }
-
-        loadVideos();
+            const videoContainer = document.createElement('div');
+            videoContainer.classList.add('video-container');
+            videoContainer.appendChild(iframe);
+            container.appendChild(videoContainer);
+        });
     </script>
 </body>
 </html>
