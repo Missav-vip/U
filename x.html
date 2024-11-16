@@ -10,27 +10,21 @@
             margin: 0;
             padding: 0;
             display: flex;
-            justify-content: center;  /* Menyusun konten di tengah */
+            flex-wrap: wrap;  /* Membuat video memanjang ke samping */
+            justify-content: flex-start; /* Memastikan video dimulai dari kiri */
             align-items: center;
             height: 100vh;
-            overflow-x: scroll; /* Hanya mengizinkan scroll horizontal */
-        }
-
-        .video-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); /* Otomatis membuat kolom dengan ukuran 60px */
-            gap: 5px;
-            grid-auto-rows: 60px; /* Ukuran baris tetap 60px */
-            width: max-content;
+            overflow-x: scroll; /* Hanya scroll horizontal */
         }
 
         .video-container {
-            width: 60px;
+            width: 60px; /* Ukuran tetap video 60x60px */
             height: 60px;
             padding: 1px;
-            display: flex;
+            display: inline-block;
             justify-content: center;
             align-items: center;
+            margin-right: 5px; /* Jarak antar video */
         }
 
         iframe {
@@ -39,31 +33,22 @@
             border: none;
         }
 
-        .load-more-button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        /* Menyembunyikan scroll vertikal */
+        /* Memastikan tidak ada scroll vertikal */
         html, body {
             overflow-y: hidden;
         }
+
     </style>
 </head>
 <body>
-    <div class="video-grid" id="videos-container"></div>
-    <button class="load-more-button" onclick="loadMoreVideos()">Load More Videos</button>
+    <div id="videos-container"></div>
 
     <script>
         const playlistId = 'PLmeMnjLK2plF0KqeYKG7OjsA5FEGODMh0'; // ID Playlist Anda
         const container = document.getElementById('videos-container');
+        const videosPerRow = 10;  // Menentukan berapa banyak video dalam satu baris
         let videoIndexStart = 0;
-        const videosPerLoad = 20; // Menambahkan 20 video per load
+        const videosPerLoad = 30; // Menambahkan 30 video per load
 
         // Fungsi untuk menambahkan video
         function loadVideos(startIndex, count) {
