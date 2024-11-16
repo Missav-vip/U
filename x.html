@@ -7,16 +7,16 @@
     <style>
         body {
             background-color: black;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-evenly;
             margin: 0;
             padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
         }
         .video-container {
-            margin: 5px;
-            width: 50px;
-            height: 50px;
+            width: 50px; /* Ukuran kotak video */
+            height: 50px; /* Ukuran kotak video */
+            margin: 1px; /* Jarak 1px antar kotak */
         }
         iframe {
             width: 100%;
@@ -27,27 +27,38 @@
 </head>
 <body>
     <div id="videos-container"></div>
-    
-    <script>
-        const playlistId = 'PLmeMnjLK2plF0KqeYKG7OjsA5FEGODMh0'; // Ganti dengan ID playlist Anda
-        const container = document.getElementById('videos-container');
-        const totalVideos = 200;
 
-        // Fungsi untuk mendapatkan video secara acak
-        function getRandomVideo() {
-            const randomIndex = Math.floor(Math.random() * totalVideos);
-            return playlistId.split(',')[randomIndex] || 'defaultVideoId';
+    <script>
+        const playlistId = 'PLmeMnjLK2plF0KqeYKG7OjsA5FEGODMh0'; // ID Playlist Anda
+        const container = document.getElementById('videos-container');
+        let videoIndexes = [];
+
+        // Menambahkan video index untuk playlist
+        for (let i = 0; i < 20; i++) {
+            videoIndexes.push(i);
         }
 
-        // Menampilkan 200 kotak video secara acak
-        for (let i = 0; i < totalVideos; i++) {
+        // Mengacak urutan video
+        videoIndexes = videoIndexes.sort(() => Math.random() - 0.5);
+
+        // Membuat embed untuk playlist
+        videoIndexes.forEach((index) => {
             const iframe = document.createElement('iframe');
-            iframe.src = `https://www.youtube.com/embed/${getRandomVideo()}?autoplay=1&loop=1&playlist=${playlistId}&mute=1&quality=small&controls=0&disablekb=1&rel=0`;
+            iframe.src = `https://www.youtube.com/embed/${getVideoIdFromPlaylist(playlistId, index)}?autoplay=1&loop=1&playlist=${playlistId}&mute=1&quality=small`; 
             iframe.setAttribute("allow", "autoplay; encrypted-media");
+
             const videoContainer = document.createElement('div');
             videoContainer.classList.add('video-container');
             videoContainer.appendChild(iframe);
             container.appendChild(videoContainer);
+        });
+
+        // Fungsi untuk mendapatkan ID video dari playlist berdasarkan index
+        function getVideoIdFromPlaylist(playlistId, index) {
+            // Anda dapat menambahkan logika untuk mendapatkan ID video tertentu dari playlist
+            // Misalnya menggunakan YouTube API untuk mengambil ID video dari playlist
+            // Di sini, kami menggunakan contoh ID video berdasarkan playlist.
+            return playlistId.split(',')[index] || 'defaultVideoId';
         }
     </script>
 </body>
