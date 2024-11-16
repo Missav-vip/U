@@ -52,8 +52,8 @@ const playlistId = 'PLmeMnjLK2plF0KqeYKG7OjsA5FEGODMh0';  // Ganti dengan ID Pla
 function addVideo(playlistId) {
     const container = document.getElementById('videos-container');
 
-    // URL untuk video playlist dengan parameter kualitas rendah (vq=small)
-    const videoUrl = `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=1&loop=1&mute=1&vq=small`;
+    // URL untuk video playlist
+    const videoUrl = `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=1&loop=1&mute=1`;
 
     // Membuat iframe untuk video
     const iframe = document.createElement('iframe');
@@ -84,6 +84,8 @@ function autoPlayVideos() {
 
 // Memutar video secara otomatis setiap 60 detik untuk memastikan berputar
 setInterval(autoPlayVideos, 60000);
+
+</script>
 
 </body>
 </html>
