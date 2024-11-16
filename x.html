@@ -13,6 +13,7 @@
             grid-template-columns: repeat(6, 1fr); /* 6 kolom */
             grid-gap: 10px; /* ruang antara video */
             justify-content: center;
+            align-items: center;
         }
 
         .video-container {
@@ -69,7 +70,8 @@
         // Menambahkan video ke dalam container
         for (let i = 0; i < 80; i++) {
             const iframe = document.createElement('iframe');
-            iframe.src = `https://www.youtube.com/embed/${videoIndexes[i]}?autoplay=1&loop=1&mute=1&playlist=${playlistId}`;
+            // Gunakan playlist ID yang valid untuk iframe, tanpa index
+            iframe.src = `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=1&loop=1&mute=1`;
             iframe.setAttribute("allow", "autoplay; encrypted-media");
             iframe.setAttribute("loading", "lazy");
 
