@@ -9,18 +9,19 @@
             background-color: black;
             margin: 0;
             padding: 0;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); /* Membuat video dalam grid, mengisi ruang dengan ukuran 60px */
-            gap: 10px; /* Memberikan jarak antar video */
-            justify-content: center; /* Menyusun video di tengah */
+            display: flex;
+            flex-wrap: nowrap; /* Memastikan video memanjang ke samping */
+            overflow-x: auto; /* Membolehkan scroll horizontal */
+            justify-content: flex-start; /* Video dimulai dari kiri */
             align-items: center;
-            height: 100vh; /* Memastikan halaman penuh */
-            overflow: hidden; /* Menyembunyikan scroll */
+            height: 100vh; /* Mengisi seluruh tinggi layar */
         }
 
         .video-container {
             width: 60px; /* Ukuran tetap video 60x60px */
             height: 60px;
+            padding: 1px;
+            margin-right: 5px; /* Memberikan jarak antar video */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -28,12 +29,12 @@
         }
 
         iframe {
-            width: 100%;  /* Menyesuaikan lebar iframe dengan kontainer */
+            width: 100%; /* Menyesuaikan lebar iframe dengan kontainer */
             height: 100%; /* Menyesuaikan tinggi iframe dengan kontainer */
             border: none;
         }
 
-        /* Memastikan tidak ada scroll */
+        /* Memastikan tidak ada scroll vertikal */
         html, body {
             overflow: hidden;
             margin: 0;
