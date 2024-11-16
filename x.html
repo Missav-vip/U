@@ -3,24 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Optimized Video Playlist</title>
+    <title>Playlist Video YouTube</title>
     <style>
         body {
             background-color: black;
             margin: 0;
             padding: 0;
-            overflow-x: auto;
-            white-space: nowrap;
+            overflow: hidden; /* Nonaktifkan scroll vertikal */
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: start;
+            align-items: flex-start;
+            height: 100vh;
+            width: 100%;
+            overflow-x: auto; /* Hanya mengaktifkan scroll horizontal */
         }
-        .video-thumbnail {
-            width: 60px;
-            height: 60px;
-            margin-right: 5px;
-            display: inline-block;
-        }
-        .video-thumbnail img {
+
+        #videos-container {
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: flex-start;
+            align-items: flex-start;
+            overflow-x: auto; /* Memungkinkan scroll hanya secara horizontal */
             width: 100%;
             height: 100%;
+        }
+
+        .video-container {
+            width: 60px; /* Ukuran tetap untuk video */
+            height: 60px;
+            padding: 1px;
+            display: inline-block;
+        }
+
+        iframe {
+            width: 100%;  /* Menyesuaikan lebar iframe dengan kontainer */
+            height: 100%; /* Menyesuaikan tinggi iframe dengan kontainer */
+            border: none;
+        }
+
+        /* Menjaga video tetap dalam ukuran 60x60 untuk semua perangkat */
+        @media (max-width: 768px) {
+            .video-container {
+                width: 60px;
+                height: 60px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .video-container {
+                width: 60px;
+                height: 60px;
+            }
         }
     </style>
 </head>
@@ -28,37 +62,48 @@
     <div id="videos-container"></div>
 
     <script>
-        const playlistId = 'PLmeMnjLK2plF0KqeYKG7OjsA5FEGODMh0';  // Ganti dengan ID Playlist Anda
+        const playlistId = 'PLmeMnjLK2plF0KqeYKG7OjsA5FEGODMh0';  // Playlist ID yang Anda gunakan
         const container = document.getElementById('videos-container');
 
-        // Fungsi untuk menampilkan thumbnail video
-        function createThumbnail(videoId) {
-            const thumbnailDiv = document.createElement('div');
-            thumbnailDiv.classList.add('video-thumbnail');
-            const thumbnailImage = document.createElement('img');
-            thumbnailImage.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-            thumbnailImage.setAttribute('alt', 'Video Thumbnail');
-            thumbnailImage.setAttribute('onclick', `playVideo('${videoId}')`);
-            thumbnailDiv.appendChild(thumbnailImage);
-            container.appendChild(thumbnailDiv);
-        }
-
-        // Membuat 80 thumbnail video
-        for (let i = 0; i < 80; i++) {
-            const videoId = playlistId + '&index=' + (i + 1);  // Gantilah dengan ID video sebenarnya dari playlist
-            createThumbnail(videoId);
-        }
-
-        // Fungsi untuk memutar video ketika thumbnail diklik
-        function playVideo(videoId) {
+        // Fungsi untuk menambahkan video ke dalam container
+        function addVideo(videoId, index) {
             const iframe = document.createElement('iframe');
-            iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&vq=tiny`;
-            iframe.setAttribute('allow', 'autoplay; encrypted-media');
-            iframe.setAttribute('loading', 'lazy');
-            iframe.style.width = '100%';
-            iframe.style.height = '100%';
-            document.body.appendChild(iframe);  // Menambahkan iframe ke halaman
+            iframe.src = `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=1&loop=1&mute=1&vq=tiny&index=${index}`;  // Memaksa kualitas rendah (144p)
+            iframe.setAttribute("allow", "autoplay; encrypted-media");
+            iframe.setAttribute("loading", "lazy");
+
+            const videoContainer = document.createElement('div');
+            videoContainer.classList.add('video-container');
+            videoContainer.appendChild(iframe);
+            container.appendChild(videoContainer);
         }
+
+        // Menambahkan video dari playlist dan membatasi jumlah video sesuai kebutuhan (misalnya 80 video)
+        for (let i = 0; i < 80; i++) {
+            addVideo(playlistId, i + 1);  // Memulai video dari indeks 1
+        }
+
+        // Memastikan video tetap aktif meskipun halaman di-background (sebaiknya saat browser aktif)
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                // Halaman disembunyikan (misalnya aplikasi berpindah ke latar belakang)
+                // Ini tidak sepenuhnya bisa mengontrol pemutaran video di browser
+                // Jadi tidak bisa memastikan video tetap berputar tanpa pembatasan browser.
+                console.log("Video tidak akan diputar di latar belakang");
+            }
+        });
+
+        // Fungsi untuk memastikan autoplay dan video terus diputar
+        window.onload = () => {
+            setInterval(() => {
+                // Gunakan interval untuk memastikan bahwa video terus diputar.
+                // Ini tidak sepenuhnya bisa mencegah penghentian di beberapa browser seperti Chrome.
+                const iframes = document.querySelectorAll("iframe");
+                iframes.forEach((iframe) => {
+                    iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                });
+            }, 5000);  // Mengirim perintah untuk memutar setiap 5 detik
+        };
     </script>
 </body>
 </html>
