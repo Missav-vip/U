@@ -11,17 +11,33 @@
             padding: 0;
             display: flex;
             flex-wrap: wrap;
-            justify-content: space-between;
+            justify-content: space-evenly; /* Menyebarkan video secara merata */
+            align-items: flex-start;
         }
         .video-container {
-            width: 60px; /* Ukuran kotak video */
-            height: 60px; /* Ukuran kotak video */
-            margin: 1px; /* Jarak 1px antar kotak */
+            width: 60px; /* Ukuran video tetap 60x60px */
+            height: 60px;
+            padding: 5px;
+            margin: 5px;
         }
         iframe {
             width: 100%;
             height: 100%;
             border: none;
+        }
+
+        @media (max-width: 768px) {
+            .video-container {
+                width: 60px; /* Memastikan ukuran video tetap 60x60px pada perangkat lebih kecil */
+                height: 60px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .video-container {
+                width: 60px; /* Memastikan ukuran video tetap 60x60px pada perangkat lebih kecil */
+                height: 60px;
+            }
         }
     </style>
 </head>
@@ -31,35 +47,59 @@
     <script>
         const playlistId = 'PLmeMnjLK2plF0KqeYKG7OjsA5FEGODMh0'; // ID Playlist Anda
         const container = document.getElementById('videos-container');
-        let videoIndexes = [];
 
-        // Menambahkan video index untuk playlist
+        // Fungsi untuk acak urutan video atau playlist
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]]; // Swap
+            }
+        }
+
+        const videoIndexes = [];
         for (let i = 0; i < 20; i++) {
-            videoIndexes.push(i);
+            videoIndexes.push(i); // Menambahkan 20 video ke dalam array
         }
 
-        // Mengacak urutan video
-        videoIndexes = videoIndexes.sort(() => Math.random() - 0.5);
+        shuffleArray(videoIndexes); // Mengacak urutan video
 
-        // Membuat embed untuk playlist
-        videoIndexes.forEach((index) => {
-            const iframe = document.createElement('iframe');
-            iframe.src = `https://www.youtube.com/embed/${getVideoIdFromPlaylist(playlistId, index)}?autoplay=1&loop=1&playlist=${playlistId}&mute=1&quality=small`; 
-            iframe.setAttribute("allow", "autoplay; encrypted-media");
+        // Menggunakan sessionStorage untuk memastikan data hanya digunakan untuk sesi ini
+        if (!sessionStorage.getItem('videosPlayed')) {
+            for (let i = 0; i < 20; i++) {
+                const iframe = document.createElement('iframe');
+                iframe.src = `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=1&loop=1&mute=1&playlist=${playlistId}&index=${videoIndexes[i]}`;
+                iframe.setAttribute("allow", "autoplay; encrypted-media");
+                iframe.setAttribute("loading", "lazy");
 
-            const videoContainer = document.createElement('div');
-            videoContainer.classList.add('video-container');
-            videoContainer.appendChild(iframe);
-            container.appendChild(videoContainer);
-        });
+                const videoContainer = document.createElement('div');
+                videoContainer.classList.add('video-container');
+                videoContainer.appendChild(iframe);
+                container.appendChild(videoContainer);
+            }
 
-        // Fungsi untuk mendapatkan ID video dari playlist berdasarkan index
-        function getVideoIdFromPlaylist(playlistId, index) {
-            // Anda dapat menambahkan logika untuk mendapatkan ID video tertentu dari playlist
-            // Misalnya menggunakan YouTube API untuk mengambil ID video dari playlist
-            // Di sini, kami menggunakan contoh ID video berdasarkan playlist.
-            return playlistId.split(',')[index] || 'defaultVideoId';
+            // Tandai bahwa video telah diputar dalam sessionStorage
+            sessionStorage.setItem('videosPlayed', 'true');
+
+            // Hapus data setelah beberapa detik untuk menjaga sesi tetap aktif
+            setTimeout(() => {
+                sessionStorage.removeItem('videosPlayed');
+            }, 5000); // Hapus data setelah 5 detik
         }
+
+        // Menambahkan pengaturan tambahan untuk keamanan:
+        // - Mengacak User-Agent
+        function setRandomUserAgent() {
+            const userAgents = [
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Firefox/60.0.2 Safari/537.36',
+                'Mozilla/5.0 (Linux; Android 9; SM-G973F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Mobile Safari/537.36'
+            ];
+            const randomUserAgent = userAgents[Math.floor(Math.random() * userAgents.length)];
+            console.log('Random User-Agent: ' + randomUserAgent);
+        }
+
+        // Set random User-Agent ketika halaman dimuat
+        setRandomUserAgent();
     </script>
 </body>
 </html>
