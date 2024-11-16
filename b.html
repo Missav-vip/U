@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Profile Miner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .profile {
+            border: 1px solid #ccc;
+            margin: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            background: #fff;
+        }
+        .profile h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+        .status {
+            margin-top: 5px;
+            color: green;
+        }
+        .controls {
+            margin-top: 10px;
+        }
+        button {
+            padding: 5px 10px;
+            margin-right: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Multi-Profile Crypto Miner</h1>
+    <div id="profiles-container"></div>
+
+    <script>
+        const profiles = [
+            { id: 1, name: "Profile 1", status: "Stopped" },
+            { id: 2, name: "Profile 2", status: "Stopped" },
+            { id: 3, name: "Profile 3", status: "Stopped" },
+        ];
+
+        const container = document.getElementById("profiles-container");
+
+        profiles.forEach(profile => {
+            const profileDiv = document.createElement("div");
+            profileDiv.className = "profile";
+            profileDiv.innerHTML = `
+                <h3>${profile.name}</h3>
+                <div class="status">Status: <span>${profile.status}</span></div>
+                <div class="controls">
+                    <button onclick="startMining(${profile.id})">Start</button>
+                    <button onclick="stopMining(${profile.id})">Stop</button>
+                </div>
+            `;
+            container.appendChild(profileDiv);
+        });
+
+        function startMining(profileId) {
+            const profile = profiles.find(p => p.id === profileId);
+            profile.status = "Mining...";
+            updateStatus(profileId, "Mining...");
+        }
+
+        function stopMining(profileId) {
+            const profile = profiles.find(p => p.id === profileId);
+            profile.status = "Stopped";
+            updateStatus(profileId, "Stopped");
+        }
+
+        function updateStatus(profileId, status) {
+            const profileDiv = document.querySelector(`.profile:nth-child(${profileId})`);
+            profileDiv.querySelector(".status span").textContent = status;
+        }
+    </script>
+</body>
+</html>
