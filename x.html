@@ -12,7 +12,7 @@
             overflow: hidden; /* Nonaktifkan scroll vertikal */
             display: flex;
             flex-wrap: wrap;
-            justify-content: start;
+            justify-content: flex-start;
             align-items: flex-start;
             height: 100vh;
             width: 100%;
@@ -68,7 +68,7 @@
         // Fungsi untuk menambahkan video ke dalam container
         function addVideo(videoId, index) {
             const iframe = document.createElement('iframe');
-            iframe.src = `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=1&loop=1&mute=1&vq=tiny&index=${index}`;  // Memaksa kualitas rendah (144p)
+            iframe.src = `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=1&loop=1&mute=1&vq=tiny`;  // Memaksa kualitas rendah (144p)
             iframe.setAttribute("allow", "autoplay; encrypted-media");
             iframe.setAttribute("loading", "lazy");
 
@@ -82,28 +82,6 @@
         for (let i = 0; i < 80; i++) {
             addVideo(playlistId, i + 1);  // Memulai video dari indeks 1
         }
-
-        // Memastikan video tetap aktif meskipun halaman di-background (sebaiknya saat browser aktif)
-        document.addEventListener("visibilitychange", function() {
-            if (document.hidden) {
-                // Halaman disembunyikan (misalnya aplikasi berpindah ke latar belakang)
-                // Ini tidak sepenuhnya bisa mengontrol pemutaran video di browser
-                // Jadi tidak bisa memastikan video tetap berputar tanpa pembatasan browser.
-                console.log("Video tidak akan diputar di latar belakang");
-            }
-        });
-
-        // Fungsi untuk memastikan autoplay dan video terus diputar
-        window.onload = () => {
-            setInterval(() => {
-                // Gunakan interval untuk memastikan bahwa video terus diputar.
-                // Ini tidak sepenuhnya bisa mencegah penghentian di beberapa browser seperti Chrome.
-                const iframes = document.querySelectorAll("iframe");
-                iframes.forEach((iframe) => {
-                    iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-                });
-            }, 5000);  // Mengirim perintah untuk memutar setiap 5 detik
-        };
     </script>
 </body>
 </html>
