@@ -17,8 +17,8 @@
         }
 
         .video-container {
-            width: 50px;  /* Ukuran 30px */
-            height: 50px; /* Ukuran 30px */
+            width: 50px;
+            height: 50px;
             margin: 1px;
             display: inline-block;
             position: relative;
@@ -32,11 +32,11 @@
         }
 
         @media (max-width: 768px) {
-            .video-container { width: 30px; height: 30px; }
+            .video-container { width: 50px; height: 50px; }
         }
 
         @media (max-width: 400px) {
-            .video-container { width: 30px; height: 30px; }
+            .video-container { width: 40px; height: 40px; }
         }
     </style>
 </head>
@@ -52,8 +52,9 @@ const playlistId = 'PLmeMnjLK2plF0KqeYKG7OjsA5FEGODMh0';  // Ganti dengan ID Pla
 function addVideo(playlistId) {
     const container = document.getElementById('videos-container');
 
-    // URL untuk video playlist
-    const videoUrl = `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=1&loop=1&mute=1`;
+    // URL untuk video playlist, ditambah parameter kualitas rendah
+    // `vq=small` akan membuat YouTube menampilkan kualitas 360p atau lebih rendah
+    const videoUrl = `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=1&loop=1&mute=1&vq=small`;
 
     // Membuat iframe untuk video
     const iframe = document.createElement('iframe');
@@ -69,12 +70,12 @@ function addVideo(playlistId) {
     container.appendChild(videoContainer);
 }
 
-// Menambahkan 200 video secara otomatis
-for (let i = 0; i < 50; i++) {
+// Menambahkan 100 video secara otomatis
+for (let i = 0; i < 100; i++) {
     addVideo(playlistId);
 }
 
-// Fungsi untuk memastikan video terus diputar dan acak
+// Fungsi untuk memastikan video terus diputar
 function autoPlayVideos() {
     const iframeElements = document.querySelectorAll('iframe');
     iframeElements.forEach(iframe => {
@@ -82,26 +83,8 @@ function autoPlayVideos() {
     });
 }
 
-// Fungsi untuk memutar playlist secara acak
-function shufflePlaylist() {
-    const container = document.getElementById('videos-container');
-    const videos = Array.from(container.children);
-    const shuffledVideos = videos.sort(() => Math.random() - 0.5);
-    
-    // Menghapus semua video yang ada di kontainer
-    container.innerHTML = '';
-    
-    // Menambahkan video secara acak kembali
-    shuffledVideos.forEach(video => {
-        container.appendChild(video);
-    });
-}
-
 // Memutar video secara otomatis setiap 60 detik untuk memastikan berputar
 setInterval(autoPlayVideos, 60000);
-
-// Memutar playlist secara acak setiap 10 menit
-setInterval(shufflePlaylist, 600000); // 600000ms = 10 menit
 
 </script>
 
