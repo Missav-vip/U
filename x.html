@@ -9,23 +9,28 @@
             background-color: black;
             margin: 0;
             padding: 0;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); /* Membuat video dalam grid */
-            gap: 5px; /* Spasi antar video */
-            justify-content: center; /* Menyusun video di tengah */
+            display: flex;
+            justify-content: center;  /* Menyusun konten di tengah */
             align-items: center;
             height: 100vh;
-            overflow: hidden; /* Menyembunyikan scroll */
+            overflow-x: scroll; /* Hanya mengizinkan scroll horizontal */
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); /* Otomatis membuat kolom dengan ukuran 60px */
+            gap: 5px;
+            grid-auto-rows: 60px; /* Ukuran baris tetap 60px */
+            width: max-content;
         }
 
         .video-container {
-            width: 60px; /* Ukuran tetap video 60x60px */
+            width: 60px;
             height: 60px;
             padding: 1px;
             display: flex;
             justify-content: center;
             align-items: center;
-            pointer-events: none; /* Mencegah klik pada video */
         }
 
         iframe {
@@ -34,46 +39,55 @@
             border: none;
         }
 
-        /* Memastikan tidak ada scroll */
+        .load-more-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        /* Menyembunyikan scroll vertikal */
         html, body {
-            overflow: hidden;
+            overflow-y: hidden;
         }
     </style>
 </head>
 <body>
-    <div id="videos-container"></div>
+    <div class="video-grid" id="videos-container"></div>
+    <button class="load-more-button" onclick="loadMoreVideos()">Load More Videos</button>
 
     <script>
         const playlistId = 'PLmeMnjLK2plF0KqeYKG7OjsA5FEGODMh0'; // ID Playlist Anda
         const container = document.getElementById('videos-container');
+        let videoIndexStart = 0;
+        const videosPerLoad = 20; // Menambahkan 20 video per load
 
-        // Fungsi untuk acak urutan video atau playlist
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]]; // Swap
+        // Fungsi untuk menambahkan video
+        function loadVideos(startIndex, count) {
+            for (let i = startIndex; i < startIndex + count; i++) {
+                const iframe = document.createElement('iframe');
+                iframe.src = `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=1&loop=1&mute=1&vq=tiny`;  // Memaksa kualitas 144p
+                iframe.setAttribute("allow", "autoplay; encrypted-media");
+                iframe.setAttribute("loading", "lazy");  // Lazy loading untuk mempercepat pemuatan
+
+                const videoContainer = document.createElement('div');
+                videoContainer.classList.add('video-container');
+                videoContainer.appendChild(iframe);
+                container.appendChild(videoContainer);
             }
         }
 
-        const videoIndexes = [];
-        for (let i = 0; i < 80; i++) {
-            videoIndexes.push(i); // Menambahkan 80 video ke dalam array
+        // Fungsi untuk memuat lebih banyak video
+        function loadMoreVideos() {
+            loadVideos(videoIndexStart, videosPerLoad);  // Muat video dari index yang diberikan
+            videoIndexStart += videosPerLoad;  // Update index video yang akan ditampilkan selanjutnya
         }
 
-        shuffleArray(videoIndexes); // Mengacak urutan video
-
-        // Menambahkan video ke dalam container
-        for (let i = 0; i < 80; i++) {
-            const iframe = document.createElement('iframe');
-            iframe.src = `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=1&loop=1&mute=1&vq=tiny`;  // Memaksa kualitas 144p
-            iframe.setAttribute("allow", "autoplay; encrypted-media");
-            iframe.setAttribute("loading", "lazy");  // Lazy loading untuk mempercepat pemuatan
-
-            const videoContainer = document.createElement('div');
-            videoContainer.classList.add('video-container');
-            videoContainer.appendChild(iframe);
-            container.appendChild(videoContainer);
-        }
+        // Muat video pertama kali
+        loadMoreVideos(); // Memuat video pertama ketika halaman dibuka
     </script>
 </body>
 </html>
