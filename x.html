@@ -9,18 +9,20 @@
             background-color: black;
             margin: 0;
             padding: 0;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); /* Menyusun video dalam kolom grid */
-            gap: 5px; /* Spasi antar video */
-            justify-content: center; /* Menyusun video di tengah */
+            display: flex;
+            flex-wrap: wrap;  /* Membuat video memanjang ke samping */
+            justify-content: flex-start; /* Memastikan video dimulai dari kiri */
+            align-items: center;
         }
 
         .video-container {
-            width: 60px;  /* Ukuran video 60x60px */
+            width: 60px; /* Ukuran tetap video 60x60px */
             height: 60px;
+            padding: 1px;
             display: flex;
             justify-content: center;
             align-items: center;
+            margin: 1px;
         }
 
         iframe {
@@ -79,6 +81,7 @@
             videoContainer.appendChild(iframe);
             container.appendChild(videoContainer);
         }
+
     </script>
 </body>
 </html>
