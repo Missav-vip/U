@@ -45,7 +45,7 @@
             return data;
         }
 
-        // Memuat video dengan proxy rotasi
+        // Memuat video dengan proxy dinamis
         async function loadVideos() {
             const proxy = await fetchProxy();
 
@@ -54,7 +54,7 @@
                 const iframe = document.createElement('iframe');
                 iframe.src = `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=1&loop=1&mute=1`;
                 iframe.setAttribute("allow", "autoplay; encrypted-media");
-                
+
                 // Set proxy untuk setiap iframe jika diperlukan
                 if (proxy) {
                     iframe.setAttribute("src", `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=1&loop=1&mute=1&proxy=${proxy.host}:${proxy.port}`);
