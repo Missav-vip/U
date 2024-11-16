@@ -9,9 +9,10 @@
             background-color: black;
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-wrap: wrap;  /* Membuat video memanjang ke samping */
-            justify-content: flex-start; /* Memastikan video dimulai dari kiri */
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); /* Membuat video dalam grid */
+            gap: 5px; /* Spasi antar video */
+            justify-content: center; /* Menyusun video di tengah */
             align-items: center;
         }
 
@@ -19,7 +20,7 @@
             width: 60px; /* Ukuran tetap video 60x60px */
             height: 60px;
             padding: 1px;
-            display: inline-block;
+            display: flex;
             justify-content: center;
             align-items: center;
         }
@@ -80,7 +81,6 @@
             videoContainer.appendChild(iframe);
             container.appendChild(videoContainer);
         }
-
     </script>
 </body>
 </html>
