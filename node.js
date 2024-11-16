@@ -45,7 +45,7 @@ async function runYouTubePlaylist(proxy) {
     const browser = await puppeteer.launch({
         headless: true, // Tidak menampilkan GUI browser
         args: [
-            `--proxy-server=${proxy.host}:${proxy.port}`,
+            `--proxy-server=${proxy.host}:${proxy.port}`, // **Bagian ini terkait proxy**
             '--no-sandbox',
             '--disable-setuid-sandbox',
         ],
@@ -53,20 +53,19 @@ async function runYouTubePlaylist(proxy) {
 
     const page = await browser.newPage();
 
-    // Set up browser untuk tidak terdeteksi
+    // **Pengaturan browser untuk menghindari deteksi**
     const userAgentList = [
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
         'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:38.0) Gecko/20100101 Firefox/38.0',
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36',
         'Mozilla/5.0 (Windows NT 6.1; rv:56.0) Gecko/20100101 Firefox/56.0'
     ];
-
     const randomUserAgent = userAgentList[Math.floor(Math.random() * userAgentList.length)];
 
     await page.setUserAgent(randomUserAgent);
-    await page.setViewport({ width: 1280, height: 720 }); // Ukuran layar standar
+    await page.setViewport({ width: 1280, height: 720 });
 
-    // Tambahkan headers untuk menutupi deteksi lebih lanjut
+    // **Menambahkan headers untuk menghindari deteksi lebih lanjut**
     await page.setExtraHTTPHeaders({
         'Accept-Language': 'en-US,en;q=0.9',
         'Connection': 'keep-alive',
@@ -75,12 +74,12 @@ async function runYouTubePlaylist(proxy) {
         'Cache-Control': 'max-age=0',
     });
 
-    // Buka halaman YouTube playlist
+    // **Memutar video playlist**
     await page.goto('https://youtube.com/playlist?list=PLmeMnjLK2plF0KqeYKG7OjsA5FEGODMh0', {
         waitUntil: 'domcontentloaded',
     });
 
-    // Fungsi untuk memutar video acak dari playlist
+    // **Fungsi untuk memutar video acak**
     const playRandomVideo = async () => {
         const videoUrl = await getRandomVideoUrl('PLmeMnjLK2plF0KqeYKG7OjsA5FEGODMh0');
         console.log('Memutar video acak:', videoUrl);
@@ -93,58 +92,42 @@ async function runYouTubePlaylist(proxy) {
             console.log('Video diputar secara otomatis');
         }
 
-        // Menambahkan jeda sebelum memutar video berikutnya
-        const delay = Math.random() * 5000 + 5000; // Jeda acak antara 5-10 detik
+        // **Jeda acak sebelum memutar video berikutnya**
+        const delay = Math.random() * 5000 + 5000;
         console.log(`Menunggu ${delay / 1000} detik sebelum melanjutkan ke video berikutnya`);
         await page.waitForTimeout(delay);
     };
 
-    // Fungsi untuk menjaga video tetap berjalan tanpa henti
+    // **Fungsi untuk menjaga video tetap berjalan tanpa henti**
     const keepVideoPlaying = async () => {
         setInterval(async () => {
             console.log('Memastikan video tetap berjalan...');
             const videoUrl = await getRandomVideoUrl('PLmeMnjLK2plF0KqeYKG7OjsA5FEGODMh0');
             await page.goto(videoUrl, { waitUntil: 'domcontentloaded' });
-        }, 5000); // Cek setiap 5 detik
+        }, 5000);
     };
 
-    // Memutar video acak dari playlist
+    // **Memutar video acak dari playlist**
     await playRandomVideo();
     keepVideoPlaying();
 
-    // Fungsi untuk mengulang playlist setelah selesai
+    // **Mengulang playlist setelah selesai**
     page.on('framenavigated', async () => {
         console.log('Memastikan video diulang jika selesai');
         await page.reload({ waitUntil: 'domcontentloaded' });
     });
 
-    // Menunggu hingga video selesai diputar dan terus ulang
-    setInterval(async () => {
-        // Cek jika video selesai dan refresh halaman
-        const videoTime = await page.evaluate(() => {
-            const video = document.querySelector('video');
-            return video ? video.currentTime : 0;
-        });
-
-        // Jika video hampir selesai, refresh
-        if (videoTime > 300) {  // Jika video lebih dari 5 menit
-            await page.reload({ waitUntil: 'domcontentloaded' });
-        }
-    }, 60000); // Memeriksa setiap menit
-
-    // Rotasi Proxy setiap 5 menit
+    // **Rotasi Proxy setiap 5 menit**
     setInterval(async () => {
         console.log('Rotasi Proxy...');
         const newProxy = await getProxy();
         if (newProxy) {
-            await restartWithNewProxy(browser); // Restart browser dengan proxy baru
+            await restartWithNewProxy(browser);
         }
-    }, 300000); // 5 menit sekali rotasi proxy
-
-    console.log('Puppeteer berjalan tanpa henti');
+    }, 300000);
 }
 
-// Ambil proxy pertama kali dan jalankan
+// **Jalankan fungsi utama**
 (async () => {
     const proxy = await getProxy();
     if (proxy) {
