@@ -74,7 +74,6 @@
             const iframe = document.createElement('iframe');
             iframe.src = `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=1&loop=1&mute=1&vq=small`;  // Memaksa kualitas 240p
             iframe.setAttribute("allow", "autoplay; encrypted-media");
-            iframe.setAttribute("loading", "lazy");
 
             const videoContainer = document.createElement('div');
             videoContainer.classList.add('video-container');
