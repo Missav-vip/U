@@ -10,18 +10,17 @@
             margin: 0;
             padding: 0;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); /* Membuat video dalam grid */
-            gap: 5px; /* Spasi antar video */
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); /* Membuat video dalam grid, mengisi ruang dengan ukuran 60px */
+            gap: 10px; /* Memberikan jarak antar video */
             justify-content: center; /* Menyusun video di tengah */
             align-items: center;
-            height: 100vh;
+            height: 100vh; /* Memastikan halaman penuh */
             overflow: hidden; /* Menyembunyikan scroll */
         }
 
         .video-container {
             width: 60px; /* Ukuran tetap video 60x60px */
             height: 60px;
-            padding: 1px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -34,24 +33,11 @@
             border: none;
         }
 
-        /* Responsif untuk perangkat dengan lebar lebih kecil */
-        @media (max-width: 768px) {
-            .video-container {
-                width: 60px;
-                height: 60px;
-            }
-        }
-
-        @media (max-width: 400px) {
-            .video-container {
-                width: 60px;
-                height: 60px;
-            }
-        }
-
         /* Memastikan tidak ada scroll */
         html, body {
             overflow: hidden;
+            margin: 0;
+            padding: 0;
         }
     </style>
 </head>
@@ -90,13 +76,16 @@
             container.appendChild(videoContainer);
         }
 
-        // Menambahkan event listener untuk menangani klik di luar video
-        document.body.addEventListener('click', (e) => {
-            if (!e.target.closest('.video-container')) {
-                // Jika klik di luar video, bisa menambah logika atau interaksi lain
-                console.log('Klik di luar video');
-            }
-        });
+        // Fungsi untuk memastikan video tetap diputar jika tab masih aktif
+        function keepVideoPlaying() {
+            const iframes = document.querySelectorAll('iframe');
+            iframes.forEach((iframe) => {
+                iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+            });
+        }
+
+        // Menjalankan keepVideoPlaying setiap 1 detik jika tab aktif
+        setInterval(keepVideoPlaying, 1000);
     </script>
 </body>
 </html>
