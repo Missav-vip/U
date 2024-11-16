@@ -6,7 +6,7 @@ const app = express();
 const apiKey = 'rmaZZM3I0oadc9cajkS9PJuAKd9E2kJo'; // Ganti dengan API Key Anda
 const proxyUrl = 'https://api.liveproxies.io/proxies';  // URL API LiveProxies
 
-// Fungsi untuk mendapatkan proxy dari LiveProxies
+// Fungsi untuk mendapatkan proxy secara dinamis
 async function getProxy() {
   try {
     const response = await axios.get(proxyUrl, {
@@ -21,7 +21,7 @@ async function getProxy() {
   }
 }
 
-// Endpoint untuk mendapatkan data dari proxy
+// Mengambil Proxy dengan rotasi untuk tiap request
 app.get('/get-proxy', async (req, res) => {
   const proxy = await getProxy();
   if (proxy) {
